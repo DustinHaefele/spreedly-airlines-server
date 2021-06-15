@@ -1,13 +1,23 @@
 const express = require('express');
 const TransactionRouter = express.Router();
-// const PaymentService = require('../services/payment-service');
+const { submitPaymentToTestGateway } = require('../services/transactionService');
+
 const jsonBodyParser = express.json();
 
-TransactionRouter.post('/', jsonBodyParser, (req, res, next) => {
-  const {token, user} = req.body;
-  const db = req.app.get("db");
-    console.log({token, user})
-  res.send({token, user})
+TransactionRouter.post('/', jsonBodyParser, async (req, res, next) => {
+  const {token, formData, amount, retain_on_success} = req.body;
+
+  const response = await submitPaymentToTestGateway(token, amount, retain_on_success)
+
+  console.log(response);
+  
+  if(response.status === 200) {
+    res.json({message: "success"})
+  } else if (response.status === 422) {
+    res.status(400).json({error: "Card number invalid"})
+  } else {
+    res.status(400).json({error: "Something went wrong"})
+  }
 });
 
 module.exports = TransactionRouter;
