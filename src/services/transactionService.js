@@ -25,15 +25,17 @@ const TransactionService = {
           return e.response;
         }
 
-    },
+    },  
 
-    saveTransactionToPostgres(db, transaction) {
-        return db
-          .insert(transaction)
-          .into('transactions')
-          .returning('*')
-          .then(([transaction]) => transaction);
-    },    
+    async getTransactions() {
+      let response = null;
+        try {
+          response = await axios.get('https://core.spreedly.com/v1/transactions.json?state=succeeded&count=100&order=desc', {auth: {username: config.SPREEDLY_ENV_KEY, password: config.SPREEDLY_ACCESS_SECRET}})
+          return response.data.transactions.filter(transaction => transaction["transaction_type"] == "Purchase")
+        } catch(e) {
+          return e.response;
+        }
+    }
 }
 
 module.exports = TransactionService;

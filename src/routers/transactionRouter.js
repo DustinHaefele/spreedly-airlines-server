@@ -1,6 +1,6 @@
 const express = require('express');
 const TransactionRouter = express.Router();
-const { submitPaymentToTestGateway } = require('../services/transactionService');
+const { submitPaymentToTestGateway, getTransactions } = require('../services/transactionService');
 
 const jsonBodyParser = express.json();
 
@@ -19,5 +19,10 @@ TransactionRouter.post('/', jsonBodyParser, async (req, res, next) => {
     res.status(400).json({error: "Something went wrong"})
   }
 });
+
+TransactionRouter.get('/transactions', async (req,res,next) => {
+  const transactions = await getTransactions();
+  res.json(transactions);
+})
 
 module.exports = TransactionRouter;
